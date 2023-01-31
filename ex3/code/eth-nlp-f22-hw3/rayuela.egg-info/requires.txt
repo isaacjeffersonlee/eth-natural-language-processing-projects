@@ -1,0 +1,7 @@
+numpy
+frozendict
+frozenlist
+pyconll
+nltk
+pytest
+dill

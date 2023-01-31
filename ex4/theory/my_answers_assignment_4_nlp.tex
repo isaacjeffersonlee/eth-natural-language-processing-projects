@@ -1,0 +1,343 @@
+\documentclass[a4paper]{article}
+%Use package definitions
+\usepackage[margin=1.3in]{geometry}
+\usepackage{amsmath, amssymb, bm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cmbright}
+\usepackage{textcomp}
+\usepackage{amsmath, amssymb}
+\usepackage{pdfpages}
+\usepackage{centernot}
+\usepackage{transparent}
+\usepackage{varwidth}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{hyperref}
+%Algorithm environments
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%Space between paragraphs
+\setlength{\parskip}{10pt}
+%No indentation on the first word of a new paragraph
+\setlength{\parindent}{0cm}
+%Creating a new color box
+\newtcolorbox{blackbox}[1][]{colframe=black,colback=white,sharp corners,center,#1}
+
+%Creating the title
+\title{Natural Language Processing: Assignment 4\author{Isaac Jefferson Lee}\date{Email: isalee@student.ethz.ch}}
+
+%Creating the header
+\pagestyle{fancy}
+\fancyhead[L]{Assignment 4}
+\fancyhead[R]{\today}
+\setlength{\headheight}{14pt} % Fixes headheight warnings when using cmbright
+
+\begin{document}
+\maketitle
+%Header on title page
+\thispagestyle{fancy} 
+
+\section*{Question 1}
+
+\subsection*{Question 1 :: Part a)}
+First we prove that the sum of probabilities for strings of any fixed
+length is 1.
+
+Clearly length 1 strings are just $\Sigma$ and their probabilities sum to 1.
+
+Now for the inductive step, assume:
+\[
+\sum_{\bm{w} \in \Sigma^* : |\bm{w}|=k} \tilde{p}(\bm{w}) = 1
+.\]
+Then it follows that:
+\[
+    \sum_{\bm{w} \in \Sigma^* : |\bm{w}|=k+1} \tilde{p}(\bm{w}) = \sum_{w \in \Sigma} p(w)\left[ \sum_{\bm{w} \in \Sigma^* : |\bm{w}|=k} \tilde{p}(\bm{w})  \right] = \sum_{w \in \Sigma} p(w)[1] = 1
+.\]
+And so we have proven that:
+\[
+\sum_{\bm{w} \in \Sigma^* : |\bm{w}|=k=n} \tilde{p}(\bm{w}) = 1 ~ ~ ~\forall n \in \mathbb{N}
+.\]
+Since we have countably infinite number of strings in $\Sigma^*$, then it follows that:
+\[
+    \sum_{\bm{w} \in \Sigma^*} \tilde{p}(\bm{w}) = \sum_{n=0}^{\infty} \sum_{\bm{w} \in \Sigma^* : |\bm{w}|=n} \tilde{p}(\bm{w}) = \sum_{n=0}^{\infty} 1 \to \infty
+.\]
+QED.
+
+
+\subsection*{Question 1 :: Part b)}
+Consider the strings of length $n$.
+By induction we can show that:
+\[
+\sum_{\bm{w} \in \Sigma^* : |\bm{w}|=n} p(\bm{w}) = p(\text{EOS})(1-p(\text{EOS}))^n
+.\]
+\begin{align*}
+     \implies \sum_{\bm{w} \in \Sigma^*} p(\bm{w}) &=  \sum_{n=0}^{\infty} \sum_{\bm{w} \in \Sigma^* : |\bm{w}|=n} p(\bm{w}) \\
+                                                   &=  \sum_{n=0}^{\infty} p(\text{EOS})(1-p(\text{EOS}))^n\\ 
+ &=  p(\text{EOS}) \sum_{n=0}^{\infty} (1-p(\text{EOS}))^n\\ 
+ &=  p(\text{EOS}) \frac{1}{1 - (1 - p(\text{EOS}))} =  \frac{p(\text{EOS})}{p(\text{EOS})} =  1
+\end{align*}
+QED.
+
+\subsection*{Question 1 :: Part c)}
+\[
+    \sum_{\bm{u} \in \Sigma^*} p(\bm{w}\bm{u}) = p_{\text{pre}}(\bm{w}) \underbrace{\sum_{\bm{u} \in \Sigma^*} p(\text{EOS} | \bm{w}\bm{u}) p(u_1 | \bm{w}) \prod_{n=2}^{M} p(u_n | \bm{w}, u_1, ..., u_{n-1}) }_{(\dag)}
+.\]
+$(\dag)$ is the pathsum of the parse-sub-tree that has root at $w_N | w_0, ..., w_{N-1}$ and clearly
+by local normalization property with the argument in b) extended to the $n-$ gram case we see that 
+$(\dag)$ must sum to 1.
+\[
+  \implies  \sum_{\bm{u}\in \Sigma^*} p(\bm{w}\bm{u}) = p_{\text{pre}}(\bm{w})
+.\]
+QED.
+
+\subsection*{Question 1 :: Part d)}
+
+In order to calculate the probability of a sentence, we need
+the inside probability given by:
+\[
+p_{\text{inside}}(\bm{w} | S) = \sum_{\bm{t} \in \mathcal{T}_S(\bm{w})} p(\bm{t})
+.\]
+This quantity looks very similar to the normalizer which is calculated
+with normal CKY. So we can compute this using CKY where we replace $\exp(\text{score}(\bullet))$ with $p(\bullet)$,
+where $p$ is specified by the PCFG.
+
+The pseudocode presented below is adapted from the course notes and should
+calculate the correct probability according to the above logic.
+
+\clearpage
+
+\begin{algorithm}
+\caption{CKY for Probability}
+\begin{algorithmic}
+\State  \textbf{def} $\mathrm{prob\_cky} (\bm{w}, \langle \mathcal{N}, \Sigma, S, \mathcal{R}, p \rangle):$
+\State $N \gets \left| \bm{w} \right| $
+\State chart $\gets \bm{0}$
+\For{$n = 1, ..., N$} \Comment{Fill the diagonal with leaf probabilities}
+    \For{$X \to w_n \in \mathcal{R}$}
+        \State $\text{chart}[n, n+1, X] \mathrel{+}= p(X\to w_n)$
+    \EndFor
+\EndFor
+
+\For{$\text{span} = 2, ..., N$} \Comment{Fill the rest of the chart}
+    \For{$i = 1, ..., N - \text{span} + 1$} \Comment{$i$ is the start idx of the span}
+        \State $k \gets i + \text{span}$  \Comment{$k$ is the end idx of the span}
+        \For{$j = i + 1, ..., k-1$}  \Comment{$j$ is the breaking point of the span}
+            \For{$X \to Y~Z \in \mathcal{R}$}
+
+            \State $\text{chart}[i, k, X] \mathrel{+}= p(X\to Y~Z) * \text{chart}[i, j, Y] * \text{chart}[j, k, Z]$
+
+            \EndFor
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return{$\text{chart}[1, N+1, S]$}
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Note:} In the pseudocode the variables given by chart[$i$, $j$, $Y$]
+represent the inside probabilities $p_{\text{inside}}(w_i, w_{i+1}, ..., w_{j} | Y)$,
+so effectively we are working bottom up and calculating the inside probabilities for each 
+fixed span length and then increasing the span length and repeating until we span the entire sentence.
+
+\subsection*{Question 1 :: Part e)}
+Using our language model probability definition, if $\bm{s}\in \Sigma^*$, then:
+\[
+p(\bm{s}) := p(\text{EOS} | s_0, ..., s_N) \prod_{n=1}^{N} p(s_n | s_0,...,s_{n-1}) = p(s_0, s_1,..., s_N, \text{EOS})
+.\]
+Clearly under our PCFG this is equal to the probability that we yield each $s_i$:
+ \[
+     = \sum_{\bm{t \in \mathcal{T}_S(\bm{s})}} \underbrace{\prod_{X\to Y Z \in \mathcal{T}_S(\bm{s})} p(X\to Y Z)}_{\text{Non-terminals}} \underbrace{\prod_{X\to s_n \in \mathcal{T}_S(\bm{s})} p(X\to s_n) }_{\text{Terminals}} = \sum_{\bm{t} \in \mathcal{T}_S(\bm{s})} p(\bm{t}) =: p(S \stackrel{*}{\implies} \bm{s})
+.\]
+So now define $\bm{s}:=\bm{wu}$ and we have:
+\[
+p(\bm{wu}) =  p(S \stackrel{*}{\implies} \bm{wu})
+.\]
+\[
+\implies \sum_{\bm{u} \in \Sigma*} p(\bm{wu}) =  \sum_{\bm{u} \in \Sigma*}  p(S \stackrel{*}{\implies} \bm{wu})
+.\]
+\subsection*{Question 1 :: Part f)}
+(If not in CNF, first convert to CNF).
+
+Suppose we have $m$ non-terminals in our PCFG, $\{X_1, X_2, ..., X_m\} $,
+then define the matrix $A \in \mathbb{R}^{m\times m}$ by:
+\[
+    A_{ij} = p(X_i \to X_j \bm{\alpha}) = \sum_{k=1}^{m} \underbrace{p(X_i \to X_j X_k)}_{\text{chart[i,j,k]}}
+.\]
+We can think of this matrix as the adjacency matrix for the left corner parse
+tree with weights given by the PCFG production probabilities. In assignment three we showed
+that for an adjacency matrix $A$, $(A^n)_{ij}$ encodes the sum of paths from $i$ to  $j$.
+In this context this means that $(A^n)_{ij}$ represents the probability of getting
+from $X_i$ to $X_j$ along the left corner after exactly n derivations.
+Therefore if we find the Kleene Star then this will encode the probability of
+getting from $X_i$ to $X_j$ along the left corner for all possible $n \in \mathbb{N}$.
+
+Recall for matrices, $A^* = (I - A)^{-1}$.
+So therefore we have:
+\[
+p_{lc}(X_j | X_i) = A^*_{ij} = (I - A)^{-1}_{ij}
+.\]
+Then to calculate $p_{lc}(X_j X_k | X_i)$ we can find the plc of $X'$ 
+s.t $X' \to X_j X_k$ and then we note that:
+\[
+p_{lc}(X_j X_k | X_i) = \sum_{X' \to X_j X_k} p_{lc}(X' | X_i) p(X' \to X_j X_k)
+.\]
+
+So using these steps outlined, our algorithm will look like:
+
+\begin{algorithm}
+\caption{Left Corner Probability}
+\begin{algorithmic}
+\State  \textbf{def} $\mathrm{prob\_left\_corner} (\bm{w}, \langle \mathcal{N}, \Sigma, S, \mathcal{R}, p \rangle):$
+\State $m \gets \left| \mathcal{N} \right| $
+\State $A \gets \bm{0} \in \mathbb{R}^{m\times m}$
+
+\For{$i = 1, ..., m$}
+    \For{$j = 1, ..., m$}
+        \For{$k = 1, ..., m$}
+            \State $A[i, j] \mathrel{+}= p(X_i \to  X_j X_k)$
+        \EndFor
+    \EndFor
+\EndFor
+
+\State $A^* \gets (I - A)^{-1}$ \Comment{This gives $p_{lc}(X_j | X_i) ~\forall i, j$}
+\State $\text{triplets} \gets \bm{0} \in \mathbb{R}^{m\times m \times m}$ \Comment{$\text{triplets}[i, j, k] := p_{lc}(X_j, X_k | X_i)$}
+
+\For{$i = 1, ..., m$}
+    \For{$j = 1, ..., m$}
+        \For{$k = 1, ..., m$}
+            \For{$X_r \to X_j X_k \in \mathcal{R}$}
+            \State $\text{triplets}[i, j, k] \mathrel{+}= A^*[i,r] * p(X_r \to X_j X_k)$
+            \EndFor
+        \EndFor
+    \EndFor
+\EndFor
+
+\State \Return{$A^*, \text{triplets}$}
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Note:} The first set of nested for loops clearly has $O(| \mathcal{N} |^3)$ complexity. Then the matrix inversion can
+also be done in $O(| \mathcal{N}|^3)$ time. Then for the next nested for loop,
+when we do $\text{for} X_r \to X_j X_k \in \mathcal{R}$ for fixed $j, k$, clearly
+worst case scenario we could have $|\mathcal{N}|$ production rules of this form.
+It follows that these nested for loops have runtime $O(| \mathcal{N}|^4)$, and therefore
+the overall runtime complexity of our algorithm is $O(| \mathcal{N}|^4)$.
+
+\subsection*{Question 1 :: Part g)}
+In order to compute the prefix probability of a string, we need the probability
+of producing the string with an arbitrary suffix. We therefore need to sum 
+over al ways we can do this, considering all possible parent non-terminals. This means
+we must sum over all non-terminal sibling pair left corner probabilities. Then for each $Y,Z$ sibling
+pair, we consider the event that the subtree rooted at $Y$ yields the first part of the string and then
+the subtree rooted at $Z$ yields the remainder of the string, along with the arb. suffix.
+We can do this for all possible ways we can split the string into two parts. Mathematically this looks like:
+\begin{align*}
+     p_{\text{pre}}(w_i...w_k |X) &=  \sum_{\bm{u} \in \Sigma^*} \sum_{j=i}^{k-1} \sum_{Y,Z \in \mathcal{N}} p(X \stackrel{*}{\implies} Y Z \bm{\alpha}) p(Y \stackrel{*}{\implies} w_i ... w_j) p(Z \stackrel{*}{\implies} w_{j+1}...w_k \bm{u})\\ 
+    &=  \sum_{j=i}^{k-1} \sum_{Y,Z \in \mathcal{N}} p(X \stackrel{*}{\implies} Y Z \bm{\alpha}) p(Y \stackrel{*}{\implies} w_i ... w_j) \left(  \sum_{\bm{u} \in \Sigma^*}  p(Z \stackrel{*}{\implies} w_{j+1}...w_k \bm{u})\right) \\ 
+    &=  \sum_{j=i}^{k-1} \sum_{Y,Z \in \mathcal{N}} p_{lc}(Y~Z | X) p_{\text{inside}}(w_i...w_j) p_{\text{pre}}(w_{j+1}...w_k | Z)\\
+\end{align*}
+QED.
+\subsection*{Question 1 :: Part h)}
+Using our algorithm developed in part f) we can compute $p_{lc}(Y~Z|X)$
+and $p_{lc}(Y|X) ~\forall Y, Z, X \in \mathcal{N}$ in $O(| \mathcal{N}|^4)$ time.
+Then to get $p_{\text{pre}}(w_k | X)$ we note that:
+\[
+~\forall X \in \mathcal{N} p_{\text{pre}}(w_k | X) = p(X\to w_k) + \sum_{Y \to w_k \in \mathcal{R}} p_{lc}(Y | X) p(Y \to w_k)
+.\]
+So clearly pre-computing $p_{lc}(Y~Z| X)$ and $p_{\text{pre}}(w_k | X) ~\forall Y, Z, X \in \mathcal{N}, ~\forall k \in \{1,..., N\} $ will have a 
+worst case runtime complexity $O(| \mathcal{N} |^4 + N| \mathcal{N}|^2)$.
+
+So we have $~\forall X \in \mathcal{N}, p_{\text{pre}}(\bm{w}|X) ~\forall \bm{w} : \left| \bm{w} \right| =1$.
+Then we note that:
+\[
+~\forall k \in \{1,...,N\} ~\forall X \in \mathcal{N}, ~ ~ p_{\text{pre}}(w_{k-1}w_k | X) = \sum_{Y,Z \in \mathcal{N}} p_{lc}(Y~Z|X) p_{\text{inside}}(w_{k-1}|Y) p_{\text{pre}}(w_k | Z)
+.\]
+Then applying the identity again, we get $~\forall k \in \{1, ..., N\} ~\forall X \in \mathcal{N}$,
+\[
+p_{\text{pre}}(w_{k-2} w_{k-1} w_k | X) =
+\sum_{j=k-2}^{k-1} \sum_{Y,Z \in \mathcal{N}} p_{lc}(Y~Z|X) p_{\text{inside}}(w_{k-2}...w_j) p_{\text{pre}}(w_{j+1}...w_k)
+.\]
+
+We can repeat this recursive procedure until $|\bm{w}| = N$, to get $p_{\text{pre}}(w_1,...,w_N|S)$
+where the inside probabilities are calculated using CKY for probability as defined above.
+
+Now examining the runtime of this naive application, recall that running CKY returns
+a chart where $\text{chart}[i,j,Y] := p_{\text{inside}}(w_i...w_j|Y)$ so we
+only need to run CKY once to populate all of the inside probabilities.
+
+Consider each recursive iteration, $~\forall k \in \{1,...,N\} $, we have
+to sum over all neighbours $Y,Z \in \mathcal{N}$, and we do this $~\forall X \in \mathcal{N}$ 
+we also have the outer sum $\sum_{j=i}^{k-1}$ up to $k=N$, so we see that for each
+iteration we have a worst case runtime $O(N^2 |\mathcal{N}|^3)$.
+We then have $N$ iterations giving us $O(N * N^2 |\mathcal{N}|^3)$.
+Then including the pre-computations we have $O(\left| \mathcal{N}  \right|^4 + N^3 \left| \mathcal{N} \right|^3 )$.
+
+Clearly we can repeat this method for $\bm{w}:= w_1, \bm{w}:= w_1 w_2, ..., \bm{w}:= w_1 w_2 ... w_N$ and we will
+have computed $p_{\text{pre}}(w_1), p_{\text{pre}}(w_1 w_2), ..., p_{\text{pre}}(w_1 w_2 ... w_N)$ 
+in $O(N * (\left| \mathcal{N} \right|^4 + N^3 \left| \mathcal{N} \right|^3)) = O(N \left| \mathcal{N} \right|^4 + N^4 \left| \mathcal{N} \right|^3)$.
+\subsection*{Question 1 :: Part i)}
+The idea is to apply the above method but store the recursively computed prefix
+probabilities in a chart.
+
+
+\begin{algorithm}
+\caption{CKY for Prefix Probabilities}
+\begin{algorithmic}
+\State  \textbf{def} $\mathrm{prefix\_cky} (\bm{w}, \langle \mathcal{N}, \Sigma, S, \mathcal{R}, p \rangle):$
+\State $N \gets \left| \bm{w} \right| $
+\State chart $\gets \bm{0} \in \mathbb{R}^{N \times N \times | \mathcal{N}|}$ \Comment{$\text{chart}[i, k, X] := p_{\text{pre}}(w_i ... w_k | X)$}
+\State $~\forall X, Y, Z \in \mathcal{N} ~ ~ p_{lc}(Y~Z| X), p_{lc}(Y|Z) \gets \text{prob\_left\_corner}(\bm{w}, \langle \mathcal{N}, \Sigma, S, \mathcal{R}, p \rangle)$
+\State $\text{inside} \gets \text{prob\_cky}(\bm{w}, \langle \mathcal{N}, \Sigma, S, \mathcal{R}, p \rangle)$
+
+\For{$k = 1, ..., N$}
+    \For{$X \in \mathcal{N}$}
+        \State $\text{chart}[k, k, X] \gets p(X \to w_k)$
+        \For{$Y \to w_k \in \mathcal{R}$} \Comment{Computing $p_{\text{pre}}(w_k |X)$}
+            \State $\text{chart}[k, k, X] \mathrel{+}= p_{lc}(Y|X) * p(Y\to w_k)$
+        \EndFor
+    \EndFor
+\EndFor
+\For{$i= 1, ..., N$} \Comment{span length}
+    \For{$k = 1, ..., N$}
+        \For{$X \in \mathcal{N}$}
+            \For{$j = i, i+1, ..., k-1$}
+                \For{$Y,Z \in \mathcal{N}$}
+                \State $\text{chart}[i, k, X] \mathrel{+}= p_{lc}(Y~Z|X) * \text{inside}[i,j,Y] * \text{chart}[j+1, k, Z]$
+                \EndFor
+            \EndFor
+        \EndFor
+    \EndFor
+\EndFor
+\State \Return{$\text{chart}[1, 1, S], \text{chart}[1, 2, S], ..., \text{chart}[1, N, S]$}
+\end{algorithmic}
+\end{algorithm}
+
+Clearly this run sin $O(N^3 | \mathcal{N}|^3 + | \mathcal{N}|^4)$ time, since
+we share previously computed values in the chart.
+
+\subsection*{Question 1 :: Part j)}
+Recall that:
+\begin{align*}
+     p_{\text{pre}}(w_1...w_N) &=  \prod_{n=1}^{N} p(w_n | w_0 .. w_{n-1})\\ 
+ &=  p(w_N | w_0 ... w_{N-1})\prod_{n=1}^{N-1} p(w_n | w_0 .. w_{n-1}) \\ 
+ &=  p(w_N | w_0 ... w_{N-1}) p_{\text{pre}}(w_1 ... w_{N-1})\\ 
+.
+\end{align*}
+Re-arranging we get:
+\[
+\implies p(w_N | w_0 ... w_{N-1}) = \frac{p_{\text{pre}}(w_1 ... w_{N-1} w_N)}{p_{\text{pre}}(w_1 ... w_{N-1})}
+.\]
+This is useful for language generation because it tells us the probability of generating a new word given some
+context. This could be useful for e.g predictive text where $w_0 ... w_{N-1}$ are known and
+we would like to generate suggestions for $w_N$ using probabilities.
+
+\section*{Question 2}
+See attached .ipynb file.
+
+\end{document}
+
+

@@ -1,0 +1,117 @@
+\documentclass[a4paper]{article}
+%Use package definitions
+\usepackage[margin=1.3in]{geometry}
+\usepackage{amsmath, amssymb, bm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cmbright}
+\usepackage{textcomp}
+\usepackage{amsmath, amssymb}
+\usepackage{pdfpages}
+\usepackage{centernot}
+\usepackage{transparent}
+\usepackage{varwidth}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{hyperref}
+
+%Creating a new color box
+\newtcolorbox{blackbox}[1][]{colframe=black,colback=white,sharp corners,center,#1}
+
+%Creating the title
+\title{Natural Language Processing: Assignment 1\author{Isaac Jefferson Lee}\date{Email: isalee@student.ethz.ch}}
+
+%Creating the header
+\pagestyle{fancy}
+\fancyhead[L]{Assignment 1}
+\fancyhead[R]{\today}
+\setlength{\headheight}{14pt} % Fixes headheight warnings when using cmbright
+
+\begin{document}
+\maketitle
+%Header on title page
+\thispagestyle{fancy} 
+
+\section*{Question I}
+
+\subsection*{Question I, Part a)}
+
+\begin{blackbox}
+    So we want to show that:
+    \[
+    \nabla ^2 f(\bm{x}) = 
+    \begin{bmatrix}\nabla(\bm{e_1} \nabla f(\bm{x})^T)\\...\\\nabla(\bm{e_n}\nabla f(\bm{x})^T\end{bmatrix}
+    .\]
+\end{blackbox}
+The LHS (Left Hand Side) can be written as:
+\[
+\text{LHS} = \nabla ^2 f(\bm{x}) = \begin{bmatrix}f_{x_1x_1} & f_{x_1x_2} & ... & f_{x_1x_n}\\f_{x_2}f_{x_1} & f_{x_2x_2} & ... & f_{x_2x_{n}}\\... & ... & ... & ...\\f_{x_{n}x_1} & f_{x_{n}x_2} & ... & f_{x_{n}x_{n}}\end{bmatrix}
+.\]
+I.e $[\nabla ^2 f(\bm{x})]_{ij} = f_{x_{i}x_{j}}$
+Now we consider the $i^{\text{th}}$ row of the RHS (Right Hand Side):
+\[
+\nabla (\bm{e}_i \nabla f(\bm{x})^T)
+.\]
+Recall that $\nabla f(\bm{x}) = [f_{x_1}, f_{x_2}, ..., f_{x_{n}}] \implies \bm{e}_i \nabla f(\bm{x})^T = f_{x_i} $
+\[
+    \implies i^{\text{ith}} \text{row of RHS} = \nabla f_{x_{i}}
+.\]
+So we can define $g(\bm{x}) := f_{x_{i}}$ and it follows that:
+\[
+\text{RHS} = \nabla g(\bm{x}) = \begin{bmatrix}g_{x_1}, & g_{x_2}, & ..., & g_{x_{n}}\end{bmatrix}
+.\]
+\[
+\implies j^{\text{th}} \text{column of RHS} = g_{x_j} = \frac{\partial }{\partial x_j} (f_{x_i}) = f_{x_{j}x_i}
+.\]
+So then if we assume continuity of the second order derivatives, we can apply
+\textit{Schwarzes Theorem}, which gives symmetry of second order partial derivatives
+to see that 
+\[
+    [\text{LHS}]_{ij} = [\text{LHS}]_{ji} = [\text{RHS}]_{ij}
+.\]
+QED.
+
+It is obvious by the above mentioned symmetry of second order partial derivatives
+that the Hessian matrix is symmetric, thus it is clear that:
+\[
+    i^{\text{th}} \text{column of Hessian} = (\nabla (\bm{e}_i \nabla f(\bm{x})^T))^T
+.\]
+
+\subsection*{Question I, Part b)}
+From the identity above we can derive the following algorithm for computing the hessian:
+ \begin{enumerate}
+\item \textbf{STEP I:} Use backpropagation on $f$ to find it's  \textbf{symbolic} first order derivatives.    
+\item \textbf{STEP 2:} For each $f_{x_i}$ first order (symbolic) partial derivative, again 
+    apply the backpropagation algorithm (this time with forward propogation and numerical outputs)
+    to get the $i^{\text{th}}$ row of the hessian.
+\end{enumerate}
+Since we have $n$ first order partial derivatives, which we can evaluate in $O(m)$ time
+for which we need to draw the corresponding computational graph and re-apply backpropogation (also in $O(m)$ time),
+it follows that computing the Hessian with this method will have a time complexity of $O(n*m)$.
+This is clearly more efficient than calculating the Hessian the "naive way" i.e entry by entry,
+which would clearly have a runtime complexity of $O(n^2*m)$.
+
+\subsection*{Question I, Part c)}
+For the third order tensor, we can just apply the same idea,
+with
+\[
+\nabla (\bm{e}_j \nabla (\bm{e}_i \nabla f(\bm{x})^T)^T)
+.\]
+If we visualize the 3rd order tensor as a 3D grid of values, then this
+will give us a vertical "column" of values, with
+\[
+    [\nabla (\bm{e}_j \nabla (\bm{e}_i \nabla f(\bm{x})^T)^T)]_{k} = f_{x_{i}x_{j}x_{k}}
+.\]
+Therefore per "vertical column" we will have a runtime of $O(m)$ and there
+are  $n^2$ vertical columns so therefore we will have a runtime complexity of $O(n^2 * m)$.
+
+In general it is clear that if we apply this method to get the $k^{\text{th}}$ order
+tensor then we will have a runtime of $O(n^{k-1} * m)$.
+
+\section*{Question 2}
+\url{https://colab.research.google.com/drive/10OqHG-bIPm1uSX3v47s3x1rCIj46vc40?usp=sharing}
+
+
+\end{document}

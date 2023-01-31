@@ -1,0 +1,517 @@
+\documentclass[a4paper]{article}
+%Use package definitions
+\usepackage[margin=1.3in]{geometry}
+\usepackage{amsmath, amssymb, bm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{cmbright}
+\usepackage{textcomp}
+\usepackage{amsmath, amssymb}
+\usepackage{pdfpages}
+\usepackage{centernot}
+\usepackage{transparent}
+\usepackage{varwidth}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{hyperref}
+%Algorithm environments
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%Creating a new color box
+\newtcolorbox{blackbox}[1][]{colframe=black,colback=white,sharp corners,center,#1}
+
+%Creating the title
+\title{Natural Language Processing: Assignment 2\author{Isaac Jefferson Lee}\date{Email: isalee@student.ethz.ch}}
+
+%Creating the header
+\pagestyle{fancy}
+\fancyhead[L]{Assignment 2}
+\fancyhead[R]{\today}
+\setlength{\headheight}{14pt} % Fixes headheight warnings when using cmbright
+
+\begin{document}
+\maketitle
+%Header on title page
+\thispagestyle{fancy} 
+
+\section*{Question 1}
+
+\subsection*{Question 1 :: Part a)}
+We are asked to prove that the expectation semiring satisfies the semiring axioms.
+So first we prove that $\langle \mathbb{R} \times \mathbb{R}, \oplus, \bm{0} \rangle$ is a
+commutative monoid.
+
+Suppose that we have some arb. $\bm{x}, \bm{y}, \bm{z} \in \mathbb{R}\times \mathbb{R}$ where we have defined
+\[
+\bm{x} := \langle x_1, x_2, \rangle,
+\bm{y} := \langle y_1, y_2, \rangle,
+\bm{z} := \langle z_1, z_2, \rangle,
+.\]
+Where $x_i, y_i, z_i \in \mathbb{R}$, then it follows that:
+\begin{align*}
+     \bm{x} \oplus (\bm{y} \oplus \bm{z}) &=   \langle x_1, x_2 \rangle \oplus (\langle y_1, y_2 \rangle \oplus \langle z_1, z_2 \rangle)\\ 
+ &=  \langle x_1, x_2 \rangle \oplus (\langle y_1 + z_1, y_2 + z_2 \rangle)\\ 
+ &=  \langle x_1, x_2 \rangle \oplus \langle y_1 + z_1, y_2 + z_2 \rangle\\ 
+ &=  \langle x_1 + (y_1 + z_1), x_2 + (y_2 + z_2) \rangle\\ 
+ &=  \langle x_1 + y_1 + z_1, x_2 + y_2 + z_2 \rangle ~ ~ ~ ~ ~ ~ (\dag)\\ 
+.
+\end{align*}
+where the last line follows from the associativity of $+$ over  $\mathbb{R}$.
+Similarly:
+\begin{align*}
+     (\bm{x} \oplus \bm{y}) \oplus \bm{z} &=  (\langle x_1, x_2 \rangle \oplus \langle y_1, y_2 \rangle) \oplus \langle z_1, z_2 \rangle\\ 
+    &=  (\langle x_1 + y_1, x_2 + y_2 \rangle) \oplus \langle z_1, z_2 \rangle\\ 
+    &=  \langle x_1 + y_1, x_2 + y_2 \rangle \oplus \langle z_1, z_2 \rangle\\ 
+    &=  \langle (x_1 + y_1) + z_1, (x_2 + y_2) + z_2 \rangle\\ 
+    &=  \langle x_1 + y_1 + z_1, x_2 + y_2+ z_2 \rangle ~ ~ ~ ~ ~ ~ (\dag\dag)\\ 
+.
+\end{align*}
+Where again, the last line follows from associativity of $+$ over $\mathbb{R}$.
+So we see that:
+\[
+    (\dag) = (\dag \dag) \implies \text{Associativity}
+.\]
+
+Next we prove the existence of the identity element $=\bm{0}$.
+Choose some arb. $\bm{x}\in \mathbb{R} \times \mathbb{R}$,
+then:
+\[
+\bm{x} \oplus \bm{0} := \langle x_1 + x_2 \rangle \oplus \langle 0, 0 \rangle = \langle 0 + x_1, 0 + x_2 \rangle
+.\]
+And by the fact that $\bm{0}$ is the identity for $+$ over $\mathbb{R}$ it follows that:
+\[
+\bm{x} + \bm{0} = \bm{x} = \bm{0} + \bm{x}
+.\]
+So it remains to prove commutativity.
+
+Suppose we choose some arb. $\bm{x}, \bm{y} \in \mathbb{R} \times \mathbb{R}$,
+then 
+\[
+\bm{x} \oplus \bm{y} := \langle x_1, x_2 \rangle \oplus \langle y_1, y_2 \rangle = \langle x_1 + y_1, x_2 + y_2 \rangle
+.\]
+\[
+\bm{y} \oplus \bm{x} := \langle y_1, y_2 \rangle \oplus \langle x_1, x_2 \rangle = \langle y_1 + x_1, y_2 + x_2 \rangle
+.\]
+By the commutativity of $+$ over $\mathbb{R}$, $x_i + y_i = y_i + x_i ~\forall i \implies \bm{x} + \bm{y} = \bm{y} + \bm{x}$
+And since our choice of $\bm{x}$ and $\bm{y}$ were arb. we have proved that $\langle \mathbb{R}\times\mathbb{R}, \oplus, \bm{0} \rangle$ 
+is a commutative monoid.
+
+
+So now we need to prove that $\langle \mathbb{R}\times\mathbb{R}, \otimes, \bm{1} \rangle$ is a monoid.
+Similar to before, we first verify associativity:
+Consider arb. $\bm{x}, \bm{y}, \bm{z} \in \mathbb{R}\times\mathbb{R}$,
+\begin{align*}
+     \bm{x} \otimes (\bm{y} \otimes \bm{z}) &=  \langle x_1, x_2 \rangle \otimes (\langle y_1, y_2 \rangle \otimes \langle z_1, z_2 \rangle)\\ 
+ &=  \langle x_1, x_2 \rangle \otimes (\langle y_1 * z_1, y_1 * z_2 + y_2 * z_1 \rangle)\\ 
+ &=  \langle x_1, x_2 \rangle \otimes \langle y_1 * z_1, y_1 * z_2 + y_2 * z_1 \rangle\\ 
+ &=  \langle x_1 * (y_1 * z_1), x_1 * (y_1 * z_2 + y_2 * z_1) + x_2 * (y_1 * z_1) \rangle
+\end{align*}
+By distributivity, associativity and commutativity of $*$  and $+$ over  $\mathbb{R}$ we have
+\[
+= \langle x_1 * y_1 * z_1, x_1 * y_1 * z_2 + x_1 * y_2 * z_1 + x_2 * y_1 * z_1\rangle  ~ ~ ~ ~ ~ ~ (\dag)
+.\]
+
+Then RHS is given by:
+\begin{align*}
+     (\bm{x} \otimes \bm{y}) \otimes \bm{z} &=  (\langle x_1, x_2 \rangle \otimes \langle y_1, y_2 \rangle) \otimes \langle z_1, z_2 \rangle\\ 
+ &=  (\langle x_1 * y_1, x_1 * y_2 + x_2 * y_1 \rangle) \otimes \langle z_1, z_2 \rangle\\ 
+ &=  \langle x_1 * y_1, x_1 * y_2 + x_2 * y_1 \rangle \otimes \langle z_1, z_2 \rangle\\ 
+ &=  \langle (x_1 * y_1) * z_1, (x_1 * y_1) * z_2 + (x_1 * y_2 + x_2 * y_1) * z_1 \rangle
+\end{align*}
+Again by distributivity, associativity and commutativity of $*$  and $+$ over  $\mathbb{R}$ we have
+\[
+= \langle x_1 * y_1 * z_1, x_1 * y_1 * z_2 + x_1 * y_2 * z_1 + x_2 * y_1 * z_1\rangle  ~ ~ ~ ~ ~ ~ (\dag\dag)
+.\]
+And therefore we get:
+\[
+    (\dag\dag) = (\dag) \implies \text{Associativity}
+.\]
+Now we must prove that the identity element exists (and $= \bm{1}$).
+So suppose that we have some arb. $\bm{x} := \langle x_1, x_2 \rangle \in \mathbb{R}\times\mathbb{R}$
+where we have $\bm{1} := \langle 1, 0 \rangle \in \mathbb{R}\times\mathbb{R}$
+then
+\[
+\bm{x} \otimes \bm{1} = \langle x_1, x_2 \rangle \otimes \langle 1, 0 \rangle \in \mathbb{R}\times\mathbb{R})
+= \langle x_1 * 1, x_1 * 0 + x_2 * 1 \rangle
+.\]
+Since 1 is the identity of $*$ over $\mathbb{R}$ and $0$is the annihilator $\implies = \langle x_1, x_2 \rangle$
+
+Similarly $\bm{1} \otimes \bm{x} = \langle 1, 0 \rangle \otimes \langle x_1, x_2 \rangle = \langle 1 * x_1, 1*x_2 + 0*x_1 \rangle = \langle x_1, x_2 \rangle$
+
+So we have now proved that $\langle \mathbb{R}\times\mathbb{R}, \otimes, \bm{1} \rangle$ is a monoid.
+
+Now we need to prove that $\otimes$ distributes over $\oplus$, i.e
+\[
+~\forall \bm{x}, \bm{y}, \bm{z} \in \mathbb{R}\times\mathbb{R} (\bm{x} \oplus \bm{y}) \otimes \bm{z} = (\bm{x} \otimes \bm{z}) \oplus (\bm{y} \otimes \bm{z}) ~ ~ ~ ~ ~ (*)
+.\]
+and
+\[
+    \bm{z} \otimes (\bm{x} \oplus \bm{y}) = (\bm{z} \otimes \bm{x}) \oplus (\bm{z} \otimes \bm{y}) ~ ~ ~ ~ ~ (**)
+.\]
+
+Consider the LHS of $(*)$:
+\begin{align*}
+     (\bm{x} \oplus \bm{y}) \otimes\bm{z} &=  (\langle x_1, x_2 \rangle \oplus \langle y_1, y_2 \rangle) \otimes \langle z_1, z_2 \rangle\\ 
+ &=  (\langle x_1 + y_1, x_2 + y_2 \rangle) \otimes \langle z_1, z_2 \rangle\\ 
+ &=  \langle x_1 + y_1, x_2 + y_2 \rangle \otimes \langle z_1, z_2 \rangle\\ 
+ &=  \langle x_1 + y_1, x_2 + y_2 \rangle \otimes \langle z_1, z_2 \rangle\\ 
+ &=  \langle (x_1 + y_1) * z_1, (x_1 + y_1) * z_2 + (x_2 + y_2) * z_1 \rangle
+\end{align*}
+Again by distributivity, associativity and commutativity of $*$ and $+$ over $\mathbb{R}$ we have:
+\[
+= \langle x_1 * z_1 + y_1 * z_1, x_1 + z_2 + y_1 * z_2+ x_2 * z_1 + y_2 * z_1 \rangle ~ ~ ~ ~ ~ (\dag)
+.\]
+
+Now consider the RHS of $(*)$:
+\begin{align*}
+          (\bm{x} \otimes \bm{z}) \oplus (\bm{y} \otimes \bm{z})) &=  (\langle x_1, x_2 \rangle \otimes \langle z_1, z_2 \rangle) \oplus (\langle y_1, y_2 \rangle \otimes \langle z_1, z_2 \rangle)\\ 
+     &=  (\langle x_1 * z_1 + x_1 * z_2 + x_2 * z_1 \rangle) \oplus (\langle y_1 * z_1, y_1 * z_2 + y_2 * z_1 \rangle)\\ 
+     &=  \langle x_1 * z_1 + x_1 * z_2 + x_2 * z_1 \rangle \oplus \langle y_1 * z_1, y_1 * z_2 + y_2 * z_1 \rangle\\ 
+     &=  \langle x_1 * z_1 + y_1 * z_1, x_1 * z_2 + x_2 * z_1 + y_1 * z_2 + y_2 * z_1 \rangle ~ ~ ~ ~ ~ (\dag\dag)
+\end{align*}
+
+$(\dag) = (\dag\dag)$ so we have the first part of distributivity proved.
+
+Now consider $(**)$.
+The LHS of $(**)$ is given by:
+\begin{align*}
+     \bm{z} \otimes (\bm{x} \oplus \bm{y}) &=  \langle z_1, z_2 \rangle \otimes (\langle x_1, x_2 \rangle \oplus \langle y_1, y_2 \rangle)\\ 
+    &=  \langle z_1, z_2 \rangle \otimes (\langle x_1 + y_1, x_2 + y_2 \rangle)\\ 
+    &=  \langle z_1, z_2 \rangle \otimes \langle x_1 + y_1, x_2 + y_2 \rangle\\ 
+    &=  \langle z_1 * (x_1 + y_1), z_1 * (x_2 + y_2) + z_1 * (x_1 + y_1) \rangle
+\end{align*}
+Again by distributivity, associativity and commutativity of $*$ and $+$ over $\mathbb{R}$ we have:
+\[
+= \langle x_1*z_1 + y_1*z_1, x_2*z_1 + y_2*z_1 + x_1*z_2 + y_1*z_2 \rangle ~ ~ ~ ~ (\dag)
+.\]
+
+The RHS of $(**)$ is given by:
+\begin{align*}
+         (\bm{z} \otimes \bm{x}) \oplus (\bm{z} \otimes \bm{y}) &=  (\langle z_1, z_2 \rangle \otimes \langle x_1, x_2 \rangle) \oplus (\langle z_1, z_2 \rangle \otimes \langle y_1, y_2 \rangle)\\ 
+    &=  (\langle z_1*x_1, z_1*x_2 + z_2*x_1 \rangle) \oplus (\langle z_1*y_1, z_1*y_2 + z_2*y_1 \rangle)\\ 
+    &=  \langle z_1 * x_1, z_1 * x_2 + z_2 * x_1 \rangle \oplus \langle z_1 * y_1, z_1 * y_2, z_2 * y_1 \rangle\\ 
+    &=  \langle z_1 * x_1 + z_1 * y_1, z_1 * x_2 + z_2 * x_1 + z_1 * y_2 + z_2 * y_1 \rangle ~ ~ ~ (\dag\dag)
+\end{align*}
+
+So $(\dag) = (\dag\dag) \implies$ we have proved distributivity.
+
+It remains to verify that $\bm{0}$ is an annihilator for $\otimes$.
+Suppose we have some arb. $\bm{x} \in \mathbb{R}\times\mathbb{R}$,
+then:
+\begin{align*}
+     \bm{x} \otimes \bm{0} &=  \langle x_1, x_2 \rangle \otimes \langle 0, 0 \rangle\\ 
+ &=  \langle x_1*0, x_1*0 + x_2*0 \rangle\\ 
+ &=  \langle 0, 0 \rangle
+\end{align*}
+
+\begin{align*}
+     \bm{0} \otimes \bm{x} &=  \langle 0, 0 \rangle \otimes \langle x_1, x_2 \rangle\\ 
+    &=  \langle 0*x_1, 0*x_2 + 0*x_1 \rangle\\ 
+    &=  \langle 0, 0 \rangle
+\end{align*}
+And we are done.
+
+QED.
+
+\subsection*{Question 1 :: Part b)}
+Recall that the forward algorithm calculates $\alpha(\bm{w}, EOS)$ which is defined
+to be the sum of the scores of all paths starting from BOS and ending at EOS.
+
+Suppose we define:
+\[
+    \omega_n := \exp\left(\text{score}(\langle t_{n-1}, t_n \rangle), \bm{w}\right)
+.\]
+Then lifting into the expectation semi-ring we have:
+\[
+\omega_n \mapsto \langle \omega_n, -\omega_n \log\left(\omega_n\right) \rangle
+.\]
+
+Recall the forward algorithm:
+
+\begin{algorithm}
+\caption{Lifted Forward Algorithm}
+\begin{algorithmic}
+    \State  $\mathrm{lifted\_forward} (\bm{w}, \mathcal{T}, N)$
+\For{$t_1 \in \mathcal{T}$}
+    \State $\alpha(\bm{w}, t_1, 1) \gets \bm{1} := \langle 1, 0 \rangle$
+\EndFor
+\For{$n \in 2, ..., N$}
+    \For{$t_n \in \mathcal{T}$}
+        \State $\alpha(\bm{w}, t_n, n) \gets \bigoplus_{t_{n-1} \in \mathcal{T}} \langle \exp\left(\text{score}(\langle t_{n-1}, t_n \rangle, \bm{w})\right),$
+        \State $-\exp\left(\text{score}(\langle t_{n-1}, t_n \rangle, \bm{w})\right) \log\left(\exp\left(\text{score}(\langle t_{n-1}, t_n \rangle, \bm{w})\right)\right)
+        \rangle \otimes \alpha(\bm{w}, t_{n-1}, n-1)$
+    \EndFor
+\EndFor
+
+\end{algorithmic}
+
+\end{algorithm}
+
+For ease of notation, let us define:
+
+\[
+    \phi_n := \text{score}(\langle t_{n-1}, t_n \rangle)
+.\]
+So our lifted tuple is:
+\[
+\langle \exp(\phi_n), -\exp(\phi_n)*\phi_n  \rangle
+.\]
+
+So for the first iteration of our lifted algorithm, when $n=2$, we get
+\begin{align*}
+      ~\forall t_2 \in \mathcal{T}, \alpha(\bm{w}, t_2, 1) &=  \bigoplus_{t_1 \in \mathcal{T}} \langle \exp(\phi_2), -\exp(\phi_2)*\phi_2  \rangle \otimes \langle 1, 0 \rangle\\ 
+ &=  \bigoplus_{t_1 \in \mathcal{T}} \langle \exp(\phi_2), -\exp(\phi_2)*\phi_2  \rangle \\ 
+ &=  \langle \sum_{t_1 \in \mathcal{T}} \exp(\phi_2), -\sum_{t_1 \in \mathcal{T}} \phi_2\exp(\phi_2) \rangle
+\end{align*}
+
+Then for $n=3$, we have:
+\begin{align*}
+     ~\forall t_3 \in \mathcal{T}, \alpha(\bm{w}, t_3, 1) &=  \bigoplus_{t_2 \in \mathcal{T}} \langle \exp(\phi_3), -\phi_3 \exp(\phi_3) \rangle \otimes \langle \sum_{t_1 \in \mathcal{T}} \exp(\phi_2), - \sum_{t_1 \in \mathcal{T}} \phi_2 \exp(\phi_2) \rangle\\ 
+ &=  \bigoplus_{t_2 \in \mathcal{T}} \langle \exp(\phi_3) \sum_{t_1 \in \mathcal{T}} \exp(\phi_2), \\
+ &-\exp(\phi_3) \sum_{t_1 \in \mathcal{T}} \phi_2 \exp(\phi_2) - \phi_3 \exp(\phi_3) \sum_{t_1 \in \mathcal{T}} \exp(\phi_2) \rangle\\ 
+ &=  \bigoplus_{t_2 \in \mathcal{T}} \langle \exp(\phi_3) \sum_{t_1 \in \mathcal{T}} \exp(\phi_2), \\
+ &-\sum_{t_1 \in \mathcal{T}}  \phi_2 \exp(\phi_3)\exp(\phi_2) -\sum_{t_1 \in \mathcal{T}} \phi_3 \exp(\phi_3) \exp(\phi_2) \rangle\\ 
+.
+\end{align*}
+Then combining sums and grouping terms we get:
+\[
+    = \left\langle \sum_{t_2 \in \mathcal{T}} \left[ \exp(\phi_3) \sum_{t_1 \in \mathcal{T}} \exp(\phi_2) \right], -\sum_{t_2 \in \mathcal{T}} \sum_{t_1 \in \mathcal{T}} (\phi_2 + \phi_3) \exp(\phi_3) \exp(\phi_2)  \right\rangle
+.\]
+
+We can apply this procedure for $n=4, 5, ..., N$
+and thus show by induction that if 
+\[
+\alpha(\bm{w}, \text{EOS}, N+1) := \langle \gamma_1, \gamma_2 \rangle
+.\]
+then it follows that:
+\[
+    \gamma_2 = - \sum_{t_N \in \mathcal{T}} \sum_{t_{N-1} \in \mathcal{T}} ... \sum_{t_1 \in \mathcal{T}} \left[ \sum_{n' = 1}^{N} \left[ \phi_{n'} \prod_{n=2}^{N} \exp(\phi_n)  \right]  \right] 
+.\]
+\textbf{Note:} $n=1 \implies \phi_n = 0 \implies\exp(\phi_n) = 1$
+\[
+\implies \prod_{n=2}^{N} \exp(\phi_n) = \prod_{n=1}^{N} \exp(\phi_n)  
+.\]
+
+\[
+    \implies \gamma_2 = -\sum_{\bm{t} \in \mathcal{T}^N} \left[ \sum_{n'=1}^{N} \left[ \phi_{n'} \prod_{n=1}^{N} \exp(\phi_n)  \right]   \right] =
+    \sum_{\bm{t} \in \mathcal{T}^N} \left[ \left( \prod_{n=1}^{N} \exp(\phi_n)  \right) \left( \sum_{n' = 1}^{N} \phi_{n'} \right)  \right] 
+.\]
+
+\[
+    = -\sum_{\bm{t} \in \mathcal{T}^N} \left[ \exp(\text{score}(\bm{t}, \bm{w})) * \text{score}(\bm{t}, \bm{w}) \right] = H_U(T_{\bm{w}})
+.\]
+
+So we see that the second component of the lifted tuple will give us $H_U(T_{\bm{w}})$.
+Also it is clear by distributitivy that the first element in the tuple, $\gamma_1$ will give us our normalizing constant $Z(\bm{w})$.
+
+\subsection*{Question 1 :: Part c)}
+We want to show:
+\[
+H(T_{\bm{w}}) = \frac{1}{Z(\bm{w})} H_U(T_{\bm{w}}) + \log(Z(\bm{w}))
+.\]
+
+Recall that:
+\[
+H_U(T_{\bm{w}}) := - \sum_{\bm{t} \in \mathcal{T}^N} \exp(\text{score}(\bm{t}, \bm{w})) \text{score}(\bm{t}, \bm{w})
+.\]
+
+Substituting this into the Right Hand Side we get:
+\[
+    RHS = -\frac{1}{Z(\bm{w})} \sum_{\bm{t} \in \mathcal{T}^N} \left[ \exp(\text{score}(\bm{t}, \bm{w})) \text{score}(\bm{t}, \bm{w}) \right] + \log(Z(\bm{w}))
+.\]
+
+Now shifting our focus to the Left Hand Side:
+\[
+    LHS = H(T_{\bm{w}}) := -\sum_{\bm{t} \in \mathcal{T}^N} P(\bm{t} | \bm{w}) \log(P(\bm{t} | \bm{w}))
+.\]
+Recall that: $P(\bm{t} | \bm{w}) := \exp(\text{score}(\bm{t}, \bm{w})) / Z(\bm{w})$
+
+\[
+    \implies H(T_{\bm{w}}) = -\sum_{\bm{t} \in \mathcal{T}^N} \left[ \frac{\exp(\text{score}(\bm{t}, \bm{w}))}{Z(\bm{w})} \log\left(\frac{\exp(\text{score}(\bm{t}, \bm{w}))}{Z(\bm{w})}\right) \right] 
+.\]
+Then by properties of logs we have:
+\begin{align*}
+         &=  - \sum_{\bm{t} \in \mathcal{T}^N} \left[ \frac{\exp(\text{score}(\bm{t}, \bm{w}))}{Z(\bm{w})} \left( \log(\exp(\text{score}(\bm{t}, \bm{w}))) - \log(Z(\bm{w})) \right) \right] \\ 
+    &=  - \sum_{\bm{t} \in \mathcal{T}^N} \left[ \frac{\exp(\text{score}(\bm{t}, \bm{w}))}{Z(\bm{w})} \left( \text{score}(\bm{t}, \bm{w}) - \log(Z(\bm{w})) \right) \right] \\ 
+   &=  -\frac{1}{Z(\bm{w})} \sum_{\bm{t} \in \mathcal{T}^N} \left[ \exp(\text{score}(\bm{t}, \bm{w})) \text{score}(\bm{t}, \bm{w}) -\exp(\text{score}(\bm{t}, \bm{w})) \log(Z(\bm{w}))\right] \\ 
+   &=  -\frac{1}{Z(\bm{w})} \sum_{\bm{t} \in \mathcal{T}^N} \left[ \exp(\text{score}(\bm{t}, \bm{w})) \text{score}(\bm{t}, \bm{w}) \right]
+   + \frac{1}{Z(\bm{w})} \sum_{\bm{t} \in \mathcal{T}^N} \exp(\text{score}(\bm{t}, \bm{w}) \log(Z(\bm{w})))
+\end{align*}
+
+So now we just have to show that:
+\[
+    \frac{1}{Z(\bm{w})} \sum_{\bm{t} \in \mathcal{T}^N} \left[ \exp(\text{score}(\bm{t}, \bm{w})) \log(Z(\bm{w})) \right] = \log(Z(\bm{w}))
+.\]
+and then we get that $LHS = RHS$.
+
+ \textbf{Note:} Since $\log(Z(\bm{w}))$ has no dependence on $\bm{t}$, we can then take it out of the sum to get:
+ \[
+    \frac{1}{Z(\bm{w})} \sum_{\bm{t} \in \mathcal{T}^N} \left[ \exp(\text{score}(\bm{t}, \bm{w})) \log(Z(\bm{w})) \right] = \frac{\log(Z(\bm{w}))}{Z(\bm{w})} \underbrace{\sum_{\bm{t} \in \mathcal{T}^N} \exp(\text{score}(\bm{t}, \bm{w}))}_{:= Z(\bm{w})}
+ .\]
+
+\[
+= \frac{\log(Z(\bm{w}))}{Z(\bm{w})} * Z(\bm{w}) = \log(Z(\bm{w})) \implies LHS = RHS
+.\]
+
+and we are done.
+
+QED.
+
+\subsection*{Question 1 :: Part d)}
+We know that for the forward, we sum over $\left| \mathcal{T} \right| $ items
+for each $t_n \in \mathcal{T}$, for each $n \in \{2, ..., N\} $ 
+therefore it is clear that we have $O(N * \left| \mathcal{T} \right|^2)$ time complexity.
+
+In part b), we have shown that we can calculate both $H_U(T_{\bm{w}})$ and $Z(\bm{w})$ in a single
+pass of the forward algorithm using the specified lifting strategy. This means
+we can calculate $H_U(T_{\bm{w}})$ and $Z(\bm{w})$ in $O(N * \left| \mathcal{T} \right| ^2)$ time
+and then by part c) it follows that since $\log, +$ and $/$ are all operations that can be run in  $O(1)$, time
+that  $H(T_{\bm{w}})$ can also be computed in $O(N * \left| \mathcal{T} \right| ^2)$ time.
+
+Also we know that the gradient of $H(T_{\bm{w}})$ w.r.t $\bm{\theta}$ can be computed
+in $O(N * \left| \mathcal{T}\right| ^2)$ time using backpropagation since thanks to 
+the forward algorithm, the forward pass can be computed in $O(N * \left| \mathcal{T} \right| ^2)$ time, then the backpass just multiplies and sums
+the computed values so by the \textit{magic of backpropagation}, the overall time complexity is the same.
+I.e the gradient can also be computed in $O(N * \left| \mathcal{T} \right| ^2)$ time.
+
+
+\section*{Question 2}
+
+\subsection*{Question 2 :: Part a)}
+By contradiction, suppose the first POS tagging of length $N$ popped from
+the priority queue is not the best POS tagging. I.e There exists
+a POS tagging of length $N$ that has a higher (less negative) score.
+Clearly this tagging could not have been in the queue at the time the first
+length $N$ POS tagging was popped, or else it would itself have been popped instead.
+This must mean that we have not "visited" some of its nodes yet.
+
+Clearly if none of the nodes for this alternative tagging are in the queue at the time of popping the
+first length N tagging, the either we have visited them all (in which case we just
+get the alternative tagging is equal to the first length N tagging) or the tagging
+is obviously worse scoring than the first length N tagging because a single
+one of its edges has a more negative score than the entire length N tagging which gets first popped.
+So we can assume that a non-empty subset of the alternative taggings nodes are in the queue
+at the time of popping the first length N tagging. However if this is the case,
+then since we choose to pop the length N tagging over this shorted tagging, and adding
+more tags to a tagging will only make the score more negative, then it is clear
+that the alternative tagging must have a more negative score and we arrive
+at a contradiction.
+
+So we can see that clearly the first length N tagging popped from the queue must be
+the best (least negative) scoring complete (length N) tagging.
+
+\subsection*{Question 2 :: Part b)}
+Proceed by induction on $i :=$ row index of $\gamma$,
+If we consider the initial step of Dijkstra's (ignoring the first row of $\gamma$)
+then $~\forall t' \in \mathcal{T}$ we do:
+\[
+    \gamma[1, t'] \gets max(-\infty, \omega(BOT, t', \bm{w}) + 0)
+.\]
+\[
+    \implies~\forall t' \in \mathcal{T} ~ ~ ~ \gamma[1, t'] = \omega(BOT, t', \bm{w})
+.\]
+This is what we instantiated the first of $\gamma$ to be in the Viterbi algorithm,
+so we see that the first row computed is clearly the same. I.e we have proved
+the base case for $i=1$.
+
+Now assume true for  $i = k \in \mathbb{N}$, i.e
+\[
+    ~\forall t' \in \mathcal{T} ~ ~ ~ \gamma_D[k, t'] = \gamma_V[k, t']
+.\]
+Now if we run Dijkstra's until the queue is empty, then it is clear that:
+\[
+    ~\forall t' \in \mathcal{T} ~ ~ ~ \gamma_D[k+1, t'] = max_{t'' \in \mathcal{T}} (\gamma_D[k, t''] + \omega[t'', t'])
+.\]
+And then the forward Viterbi gives:
+\[
+    \gamma_V[k+1, t'] = max_{t'' \in \mathcal{T}}(\omega(t'', t', \bm{w}) + \gamma_V[k, t'])
+.\]
+So clearly by our induction hypothesis if follows that:
+\[
+    ~\forall t'' \in \mathcal{T} ~ ~ ~ \gamma_D[k, t''] = \gamma_V[k, t''] \implies
+    ~\forall t' \in \mathcal{T} ~ ~ ~ \gamma_D[k+1, t'] = \gamma_V[k+1, t']
+.\]
+and we are done
+QED.
+
+\subsection*{Question 2 :: Part c)}
+Let us implement the priority queue as a \textbf{heap}. This means
+push will have $O(\log(m))$ time complexity and pop will have $O(1)$, where  $m$ is
+the number of items in the queue. Since we want to compute an upper bound
+on the runtime, then we must consider the worst case example. I.e when
+we don't stop early. In this worst case we must clearly push onto the queue
+for every edge in the graph, and the queue will be linear in the number of vertices,
+so it follows that if we have  $| \mathcal{T} | | \bm{w} | $ vertices and $| \mathcal{T} |^2 | \bm{w} |$ edges (ignoring BOT and EOT)
+then we will have a runtime complexity of:
+\[
+O(\left| \mathcal{T} \right| ^2 \left| \bm{w} \right| \log(\left| \mathcal{T} \right| \left| \bm{w} \right| ))
+.\]
+Comparing this with the Viterbi algorithm, which has a runtime 
+of $O(\left| \mathcal{T} \right|^2 \left| \bm{w} \right| )$
+we see that in the worst case scenario, Dijkstras is slower.
+
+However worse case runtime aside, since Dijkstra's is a greedy algorithm
+and has the early stopping ability, then in reality the average runtime of
+Dijkstra's could be a lot faster depending on the shape of the problem.
+In applications where we can be more lenient about consistent speeds, but just
+want overall faster runtime, Dijkstra's could be favourable.
+
+\subsection*{Question 2 :: Part d)}
+No. Dijkstra's does \textbf{NOT} always calculate the best POS tagging in
+the:
+\[
+\mathbb{R} = \langle \mathbb{R} \cup \{-\infty, +\infty\}, \oplus_{\log}, +, +\infty, 0  \rangle
+.\]
+semiring. We can see this since inside this semi-ring we can have both positive and negative
+edge-weights, but our queue update method ($\oplus_{\log}$) always returns a negative
+score, and so if we want to find the "shortest path" in the context of the semi-ring then
+clearly this will not work. E.g if we start with positive edge weights, then as soon as we start updating the queue, these positive edge
+weights initially in the queue will either never get revisited, or always be visited before
+the new negative scores in the queue, depending on how we order the queue/how we define "best scoring".
+Either way we have the potential to miss the best scoring path.
+
+More rigorously we note the $\oplus$ does not satisfy superiority and therefore dijkstra's will not work
+in this instance.
+
+\subsection*{Question 2 :: Part e)}
+As we just discussed, we require \textbf{Superiority}. I.e we either need that:
+\[
+    ~\forall a, b ~ ~ a \le a \oplus b \land b \le a \oplus b
+.\]
+or 
+\[
+~\forall a, b ~ ~ a \ge  a \oplus b \land b \ge a \oplus b
+.\]
+One way to ensure this is to only allow monotonic semirings with the same sign edge weights, i.e
+all negative or all positive weights.
+
+% One class of semirings that can be used with Dijkstra's algorithm
+% such that when the algorithm is stopped early,
+% it provably returns the best path is the class of monotonic semirings. \\
+
+% In a monotonic semiring, the addition and multiplication operations
+% are monotonic, which means that they preserve the order of the elements
+% in the semiring. 
+% \[
+% \therefore x \le y \implies x \oplus z \le  y \oplus z \land x \otimes z\le y \otimes z
+% .\]
+
+% In Dijkstra's algorithm, the distance values are updated using the
+% addition and multiplication operations of the semiring,
+% and the algorithm stops when the destination node is visited.
+% If the semiring is monotonic, the updated distance values will
+% always be non-decreasing, which means that the algorithm will not
+% revisit a node with a larger distance value. 
+% Therefore, when the algorithm stops,
+% the final distance value for the destination node will be the 
+% minimum distance from the source node to the destination node,
+% and the algorithm will have found the best path. \\
+
+% Another advantage of using a monotonic semiring with Dijkstra's algorithm is that it allows for early termination of the algorithm. Since the distance values are non-decreasing, if the distance to the destination node becomes larger than the best path found so far, the algorithm can be stopped immediately, because it is guaranteed that the final distance value will not be smaller than the current value.
+\section*{Question 3}
+See uploaded .ipynb.
+
+\end{document}
